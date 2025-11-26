@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "titulo": "Bienvenidos a Gaming Info",
+    "categoria": "General",
+    "autor": "Admin",
+    "fecha": "26/11/2025",
+    "contenido": "¡Bienvenido al sitio! Aquí encontrarás noticias y actualizaciones sobre los mejores juegos.",
+    "vistas": 0,
+    "estado": "Publicado"
+  },
+  {
+    "id": 2,
+    "titulo": "Actualización semanal",
+    "categoria": "Actualizaciones",
+    "autor": "Equipo",
+    "fecha": "26/11/2025",
+    "contenido": "Resumen de novedades y parches importantes de la semana.",
+    "vistas": 0,
+    "estado": "Publicado"
+  }
+]

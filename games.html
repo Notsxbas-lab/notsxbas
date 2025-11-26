@@ -11,55 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .container {
-            display: flex;
-        }
-        .sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            height: 100vh;
-            padding: 0;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-        }
-        .sidebar h2 {
-            text-align: center;
-            padding: 30px 20px;
-            background: rgba(0,0,0,0.2);
-            margin: 0;
-            font-size: 24px;
-            border-bottom: 3px solid #3498db;
-        }
-        .sidebar h2 i {
-            margin-right: 10px;
-            color: #3498db;
-        }
-        .sidebar ul {
-            list-style: none;
-            padding: 20px 0;
-        }
-        .sidebar ul li {
-            padding: 0;
-            margin: 5px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .sidebar ul li a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            }
             font-size: 16px;
         }
         .sidebar ul li a i {
@@ -248,26 +200,40 @@
             color: #555;
             line-height: 1.6;
         }
-        .section-content {
-            display: none;
+        function loadNews() {
+            // If there are no news stored locally (localStorage is per-device),
+            // try to fetch a static fallback `/news.json` bundled with the site.
+            // This allows mobile visitors to see news even if they were created on another device.
+            if (news.length === 0) {
+                // show a temporary loading message while we try to fetch fallback
+                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 20px;">Cargando noticias...</p>';
+                fetch('/news.json').then(resp => {
+                    if (!resp.ok) throw new Error('No fallback');
+                    return resp.json();
+                }).then(remoteNews => {
+                    if (Array.isArray(remoteNews) && remoteNews.length > 0) {
+                        localStorage.setItem('news', JSON.stringify(remoteNews));
+                        news = remoteNews;
+                    }
+                    renderNewsGrid(newsGrid, news);
+                }).catch(() => {
+                    // no fallback available — render empty state
+                    renderNewsGrid(newsGrid, news);
+                });
+                return;
+            }
+
+            renderNewsGrid(newsGrid, news);
         }
-        .section-content.active {
-            display: block;
-        }
-        .news-meta {
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #7f8c8d;
-        }
-        .news-meta span {
-            margin-right: 12px;
-        }
-        .news-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
+
+        function renderNewsGrid(newsGrid, newsArray) {
+            const publicadas = (newsArray || []).filter(item => item.estado === 'Publicado');
+            if (publicadas.length === 0) {
+                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No hay noticias disponibles. Crea una desde el panel de admin.</p>';
+                return;
+            }
+
+            newsGrid.innerHTML = publicadas.map(item => `
         .news-category {
             display: inline-block;
             padding: 4px 10px;
@@ -439,21 +405,35 @@
         function loadNews() {
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const newsGrid = document.getElementById('news-grid');
-            // If there are no news stored (different devices won't share localStorage),
-            // seed a small set of public sample news so mobile visitors see content.
+
             if (news.length === 0) {
-                news = [
-                    { id: 1, titulo: 'Bienvenidos a Gaming Info', categoria: 'General', autor: 'Admin', fecha: new Date().toLocaleDateString('es-ES'), contenido: '¡Bienvenido al sitio! Aquí encontrarás noticias y actualizaciones sobre los mejores juegos.', vistas: 0, estado: 'Publicado' },
-                    { id: 2, titulo: 'Actualización semanal', categoria: 'Actualizaciones', autor: 'Equipo', fecha: new Date().toLocaleDateString('es-ES'), contenido: 'Resumen de novedades y parches importantes de la semana.', vistas: 0, estado: 'Publicado' }
-                ];
-                localStorage.setItem('news', JSON.stringify(news));
+                // show loading while trying to fetch static fallback
+                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 20px;">Cargando noticias...</p>';
+                fetch('/news.json').then(resp => {
+                    if (!resp.ok) throw new Error('No fallback');
+                    return resp.json();
+                }).then(remoteNews => {
+                    if (Array.isArray(remoteNews) && remoteNews.length > 0) {
+                        localStorage.setItem('news', JSON.stringify(remoteNews));
+                        news = remoteNews;
+                    }
+                    renderNewsGrid(newsGrid, news);
+                }).catch(() => {
+                    // fallback failed — render empty state
+                    renderNewsGrid(newsGrid, news);
+                });
+                return;
             }
 
-            const publicadas = news.filter(item => item.estado === 'Publicado');
+            renderNewsGrid(newsGrid, news);
+            return (news || []).filter(item => item.estado === 'Publicado');
+        }
 
+        function renderNewsGrid(newsGrid, newsArray) {
+            const publicadas = (newsArray || []).filter(item => item.estado === 'Publicado');
             if (publicadas.length === 0) {
                 newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No hay noticias disponibles. Crea una desde el panel de admin.</p>';
-                return publicadas;
+                return;
             }
 
             newsGrid.innerHTML = publicadas.map(item => `
@@ -472,8 +452,6 @@
                     </div>
                 </div>
             `).join('');
-
-            return publicadas;
         }
 
         function showNews(newsId) {
