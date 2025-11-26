@@ -432,6 +432,12 @@
             const publicadas = (newsArray || []).filter(item => item.estado === 'Publicado');
             if (publicadas.length === 0) {
                 newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No hay noticias disponibles. Crea una desde el panel de admin.</p>';
+                // On small screens, switch to the noticias section even if empty
+                try {
+                    if (window.innerWidth <= 800) {
+                        setTimeout(() => showSection('noticias'), 100);
+                    }
+                } catch (e) {}
                 return;
             }
 
@@ -452,10 +458,10 @@
                 </div>
             `).join('');
 
-            // On small screens, switch to the noticias section so mobile users see news
+            // On small screens, switch to the noticias section so mobile users see news in separate tab
             try {
                 if (window.innerWidth <= 800) {
-                    showSection('noticias');
+                    setTimeout(() => showSection('noticias'), 100);
                 }
             } catch (e) {}
         }
