@@ -1219,38 +1219,34 @@
         }
 
         function addNews() {
-                const titulo = prompt('Título:');
-            if (!titulo) return;
-
-            const categoria = prompt('Categoría:');
-            if (!categoria) return;
-
-            const autor = prompt('Autor:');
-            if (!autor) return;
-
-            const fecha = prompt('Fecha (DD/MM/YYYY):');
-            if (!fecha) return;
-
-                const contenido = prompt('Contenido de la noticia:');
-                if (!contenido) return;
-
+            // Crear una nueva fila de noticia inline (sin prompts)
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const newId = news.length > 0 ? Math.max(...news.map(n => n.id)) + 1 : 1;
 
             const newNews = {
                 id: newId,
-                titulo: titulo,
-                categoria: categoria,
-                autor: autor,
-                fecha: fecha,
-                    contenido: contenido,
-                    vistas: 0,
-                estado: 'Publicado'
+                titulo: 'Nueva noticia',
+                categoria: '',
+                autor: 'Admin',
+                fecha: new Date().toLocaleDateString('es-ES'),
+                contenido: '',
+                vistas: 0,
+                estado: 'Borrador'
             };
 
-            news.push(newNews);
+            // Añadir al comienzo para que aparezca primero
+            news.unshift(newNews);
             localStorage.setItem('news', JSON.stringify(news));
+
+            // Volver a renderizar la tabla y activar edición inline
             loadNews();
+            attachEditableListeners();
+
+            // Marcar la fila como 'dirty' para indicar que requiere guardado
+            setTimeout(() => {
+                const row = document.querySelector(`tr[data-news-id="${newId}"]`);
+                if (row) markRowDirty(row);
+            }, 100);
         }
 
         function editNews(id) {
