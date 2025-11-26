@@ -1138,15 +1138,12 @@
             tableBody.innerHTML = news.map(item => `
                 <tr data-news-id="${item.id}">
                     <td>${item.id}</td>
-                    <td>${item.titulo}</td>
-                    <td>${item.categoria}</td>
-                    <td>${item.autor}</td>
-                    <td>${item.fecha}</td>
+                    <td contenteditable="true" class="editable-cell">${item.titulo}</td>
+                    <td contenteditable="true" class="editable-cell">${item.categoria}</td>
+                    <td contenteditable="true" class="editable-cell">${item.autor}</td>
+                    <td contenteditable="true" class="editable-cell">${item.fecha}</td>
                     <td><strong style="color: #27ae60;">${item.vistas || 0}</strong></td>
-                    <td>
-                        <div>${item.contenido ? item.contenido.substring(0, 60) + '...' : 'Sin contenido'}</div>
-                        <button class="btn-action" onclick="editContent(${item.id})" style="margin-top:8px;"><i class="fas fa-pen"></i></button>
-                    </td>
+                    <td contenteditable="true" class="editable-cell">${item.contenido || ''}</td>
                     <td>
                         <select class="status-select" onchange="changeNewsStatus(${item.id}, this.value)">
                             <option value="Publicado" ${item.estado === 'Publicado' ? 'selected' : ''}>Publicado</option>
@@ -1154,6 +1151,7 @@
                         </select>
                     </td>
                     <td>
+                        <button class="btn-action btn-save" onclick="saveNews(${item.id})"><i class="fas fa-save"></i></button>
                         <button class="btn-action btn-edit" onclick="editNews(${item.id})"><i class="fas fa-edit"></i></button>
                         <button class="btn-action btn-delete" onclick="deleteNews(${item.id})"><i class="fas fa-trash"></i></button>
                     </td>
@@ -1268,6 +1266,38 @@
             item.estado = newStatus;
             localStorage.setItem('news', JSON.stringify(news));
             showSuccessNotification();
+        }
+
+        function saveNews(id) {
+            const row = document.querySelector(`tr[data-news-id="${id}"]`);
+            if (!row) return;
+
+            const cells = row.querySelectorAll('.editable-cell');
+            // Orden: titulo, categoria, autor, fecha, contenido
+            const titulo = cells[0] ? cells[0].textContent.trim() : '';
+            const categoria = cells[1] ? cells[1].textContent.trim() : '';
+            const autor = cells[2] ? cells[2].textContent.trim() : '';
+            const fecha = cells[3] ? cells[3].textContent.trim() : '';
+            const contenido = cells[4] ? cells[4].textContent.trim() : '';
+
+            if (!titulo || !categoria || !autor || !fecha) {
+                alert('Título, categoría, autor y fecha son obligatorios');
+                return;
+            }
+
+            let news = JSON.parse(localStorage.getItem('news')) || [];
+            const item = news.find(n => n.id === id);
+            if (!item) return;
+
+            item.titulo = titulo;
+            item.categoria = categoria;
+            item.autor = autor;
+            item.fecha = fecha;
+            item.contenido = contenido;
+
+            localStorage.setItem('news', JSON.stringify(news));
+            showSuccessNotification();
+            loadNews();
         }
 
         function updateNewsCount(count) {
