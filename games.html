@@ -194,6 +194,26 @@
             overflow-y: auto;
             position: relative;
         }
+
+        /* Responsive: mobile adjustments */
+        @media (max-width: 800px) {
+            .container { flex-direction: column; }
+            .sidebar { display: none; }
+            .main-content { padding: 12px; }
+            .games-grid { grid-template-columns: 1fr; gap: 18px; }
+            .game-image { height: 160px; font-size: 40px; }
+            .news-image { height: 120px; font-size: 32px; }
+            .modal-content { width: 96%; max-width: 96%; border-radius: 10px; padding: 18px; }
+            .header h1 { font-size: 22px; }
+            .header p { font-size: 14px; }
+            /* Mobile nav (visible on phones) */
+            .mobile-nav { display: flex; gap: 8px; margin-bottom: 12px; justify-content: center; }
+            .mobile-nav button { background: #3498db; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight:600; }
+            .mobile-nav button.active { background: #2c3e50; }
+        }
+        @media (min-width: 801px) {
+            .mobile-nav { display: none; }
+        }
         .close {
             position: absolute;
             top: 15px;
@@ -281,6 +301,12 @@
             <div class="header">
                 <h1><i class="fas fa-gamepad"></i> Juegos Disponibles</h1>
                 <p>Descubre los mejores juegos del momento</p>
+            </div>
+
+            <!-- Mobile navigation: visible only on small screens -->
+            <div class="mobile-nav" role="tablist" aria-label="Navegación móvil">
+                <button id="mobile-juegos" class="active">Juegos</button>
+                <button id="mobile-noticias">Noticias</button>
             </div>
 
             <div id="juegos" class="section-content active">
@@ -474,6 +500,34 @@
                 document.getElementById(sectionName).classList.add('active');
             });
         });
+
+        // Mobile nav handlers: switch sections when buttons tapped
+        const mobileJuegosBtn = document.getElementById('mobile-juegos');
+        const mobileNoticiasBtn = document.getElementById('mobile-noticias');
+
+        function showSection(sectionName) {
+            // Update sidebar visual state (if present)
+            menuItems.forEach(mi => mi.classList.remove('active'));
+            const menuItem = document.querySelector(`.sidebar ul li[data-section="${sectionName}"]`);
+            if (menuItem) menuItem.classList.add('active');
+
+            // Show section content
+            sections.forEach(section => section.classList.remove('active'));
+            const el = document.getElementById(sectionName);
+            if (el) el.classList.add('active');
+
+            // Update mobile buttons active state
+            if (sectionName === 'juegos') {
+                mobileJuegosBtn.classList.add('active');
+                mobileNoticiasBtn.classList.remove('active');
+            } else if (sectionName === 'noticias') {
+                mobileNoticiasBtn.classList.add('active');
+                mobileJuegosBtn.classList.remove('active');
+            }
+        }
+
+        if (mobileJuegosBtn) mobileJuegosBtn.addEventListener('click', () => showSection('juegos'));
+        if (mobileNoticiasBtn) mobileNoticiasBtn.addEventListener('click', () => showSection('noticias'));
 
         window.addEventListener('load', function() {
             loadGames();
