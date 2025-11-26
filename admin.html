@@ -611,7 +611,7 @@
                                 <th>Autor</th>
                                 <th>Fecha</th>
                                 <th>Vistas</th>
-                                <th>Enlace</th>
+                                    <th>Contenido</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -1120,26 +1120,24 @@
         // Gestión de Noticias
         function loadNews() {
             let news = JSON.parse(localStorage.getItem('news')) || [];
-            if (news.length === 0) {
-                // Inicializar con noticias de ejemplo
-                news = [
-                    { id: 1, titulo: 'Nuevo DLC anunciado para Elden Ring', categoria: 'Actualizaciones', autor: 'Admin', fecha: '15/12/2024', vistas: 1234, enlace: 'https://example.com/dlc-elden-ring', estado: 'Publicado' },
-                    { id: 2, titulo: 'Top 10 juegos más esperados de 2024', categoria: 'Listas', autor: 'Admin', fecha: '10/12/2024', vistas: 856, enlace: 'https://example.com/top-10-2024', estado: 'Publicado' },
-                    { id: 3, titulo: 'Review: The Last of Us Part II', categoria: 'Reseñas', autor: 'Admin', fecha: '05/12/2024', vistas: 2103, enlace: 'https://example.com/review-tlou2', estado: 'Publicado' }
-                ];
-                localStorage.setItem('news', JSON.stringify(news));
-            }
 
             const tableBody = document.getElementById('noticias-table');
+
+                if (news.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px; color: #7f8c8d;">No hay noticias. Crea una haciendo clic en "Agregar Noticia"</td></tr>';
+                    updateNewsCount(0);
+                    return;
+                }
+
             tableBody.innerHTML = news.map(item => `
                 <tr data-news-id="${item.id}">
                     <td>${item.id}</td>
-                    <td contenteditable="true" class="editable-cell">${item.titulo}</td>
-                    <td contenteditable="true" class="editable-cell">${item.categoria}</td>
-                    <td contenteditable="true" class="editable-cell">${item.autor}</td>
-                    <td contenteditable="true" class="editable-cell">${item.fecha}</td>
-                    <td contenteditable="true" class="editable-cell">${item.vistas}</td>
-                    <td contenteditable="true" class="editable-cell">${item.enlace || ''}</td>
+                        <td>${item.titulo}</td>
+                        <td>${item.categoria}</td>
+                        <td>${item.autor}</td>
+                        <td>${item.fecha}</td>
+                        <td><strong style="color: #27ae60;">${item.vistas || 0}</strong></td>
+                        <td>${item.contenido ? item.contenido.substring(0, 50) + '...' : 'Sin contenido'}</td>
                     <td>
                         <select class="status-select" onchange="changeNewsStatus(${item.id}, this.value)">
                             <option value="Publicado" ${item.estado === 'Publicado' ? 'selected' : ''}>Publicado</option>
@@ -1147,7 +1145,7 @@
                         </select>
                     </td>
                     <td>
-                        <button class="btn-action btn-save" onclick="saveNews(${item.id})"><i class="fas fa-save"></i></button>
+                            <button class="btn-action btn-edit" onclick="editNews(${item.id})"><i class="fas fa-edit"></i></button>
                         <button class="btn-action btn-delete" onclick="deleteNews(${item.id})"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
@@ -1158,7 +1156,7 @@
         }
 
         function addNews() {
-            const titulo = prompt('Título de la noticia:');
+                const titulo = prompt('Título:');
             if (!titulo) return;
 
             const categoria = prompt('Categoría:');
@@ -1170,7 +1168,8 @@
             const fecha = prompt('Fecha (DD/MM/YYYY):');
             if (!fecha) return;
 
-            const vistas = parseInt(prompt('Número de vistas:', '0')) || 0;
+                const contenido = prompt('Contenido de la noticia:');
+                if (!contenido) return;
 
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const newId = news.length > 0 ? Math.max(...news.map(n => n.id)) + 1 : 1;
@@ -1181,7 +1180,8 @@
                 categoria: categoria,
                 autor: autor,
                 fecha: fecha,
-                vistas: vistas,
+                    contenido: contenido,
+                    vistas: 0,
                 estado: 'Publicado'
             };
 
@@ -1207,7 +1207,9 @@
             const fecha = prompt('Fecha (DD/MM/YYYY):', item.fecha);
             if (!fecha) return;
 
-            const vistas = parseInt(prompt('Número de vistas:', item.vistas)) || 0;
+                const contenido = prompt('Contenido:', item.contenido || '');
+                if (!contenido) return;
+
             const estado = prompt('Estado (Publicado/Borrador):', item.estado);
             if (!estado) return;
 
@@ -1215,7 +1217,7 @@
             item.categoria = categoria;
             item.autor = autor;
             item.fecha = fecha;
-            item.vistas = vistas;
+                item.contenido = contenido;
             item.estado = estado;
 
             localStorage.setItem('news', JSON.stringify(news));
@@ -1231,37 +1233,6 @@
             loadNews();
         }
 
-        function saveNews(id) {
-            const row = document.querySelector(`tr[data-news-id="${id}"]`);
-            if (!row) return;
-
-            const cells = row.querySelectorAll('.editable-cell');
-            const titulo = cells[0].textContent.trim();
-            const categoria = cells[1].textContent.trim();
-            const autor = cells[2].textContent.trim();
-            const fecha = cells[3].textContent.trim();
-            const vistas = parseInt(cells[4].textContent.trim()) || 0;
-            const enlace = cells[5].textContent.trim();
-
-            if (!titulo || !categoria || !autor || !fecha) {
-                alert('Todos los campos son obligatorios');
-                return;
-            }
-
-            let news = JSON.parse(localStorage.getItem('news')) || [];
-            const item = news.find(n => n.id === id);
-            if (!item) return;
-
-            item.titulo = titulo;
-            item.categoria = categoria;
-            item.autor = autor;
-            item.fecha = fecha;
-            item.vistas = vistas;
-            item.enlace = enlace;
-
-            localStorage.setItem('news', JSON.stringify(news));
-            showSuccessNotification();
-        }
 
         function changeNewsStatus(id, newStatus) {
             let news = JSON.parse(localStorage.getItem('news')) || [];
