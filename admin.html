@@ -387,22 +387,7 @@
     </style>
 </head>
 <body>
-    <!-- Modal bonito para advertencia de cambios no guardados -->
-    <div id="unsavedModal" style="display:none; position:fixed; z-index:20000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center;">
-        <div style="background:white; border-radius:12px; width:420px; max-width:90%; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,0.35); text-align:left;">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:44px; height:44px; border-radius:50%; background:#f39c12; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;"><i class="fas fa-exclamation"></i></div>
-                        <h3 style="margin:0 0 6px 0; color:#2c3e50; font-size:18px;">Tienes cambios sin guardar</h3>
-                        <p style="margin:0; color:#7f8c8d; font-size:14px;">Hay <strong id="unsavedCount">0</strong> fila(s) con cambios pendientes. ¿Qué deseas hacer antes de salir?</p>
-                    </div>
-            </div>
-            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
-                <button id="unsavedCancel" style="background:#ecf0f1; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;">Cancelar</button>
-                <button id="unsavedLeave" style="background:#e74c3c; color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;">Salir sin guardar</button>
-                <button id="unsavedSave" style="background:#27ae60; color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;">Guardar y continuar</button>
-            </div>
-        </div>
-    </div>
+    
     <button class="toggle-btn" id="toggle-btn">
         <i class="fas fa-bars"></i>
         <span>Menú</span>
@@ -781,37 +766,29 @@
             'configuracion': '<i class="fas fa-cog"></i>Configuración del Sistema'
         };
 
-        // Intercept navigation to warn about unsaved changes
         menuItems.forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
 
+                // Remover clase active de todos los items
+                menuItems.forEach(mi => mi.classList.remove('active'));
+
+                // Agregar clase active al item clickeado
+                this.classList.add('active');
+
+                // Obtener la sección a mostrar
                 const sectionName = this.getAttribute('data-section');
 
-                if (hasUnsavedChanges()) {
-                    // Show nice modal offering options
-                    showUnsavedModal(() => {
-                        // continue navigation after user confirms
-                        performNavigation(item, sectionName);
-                    });
-                } else {
-                    performNavigation(item, sectionName);
-                }
+                // Ocultar todas las secciones
+                sections.forEach(section => section.classList.remove('active'));
+
+                // Mostrar la sección seleccionada
+                document.getElementById(sectionName).classList.add('active');
+
+                // Cambiar el título
+                pageTitle.innerHTML = titles[sectionName];
             });
         });
-
-        function performNavigation(item, sectionName) {
-            // Remover clase active de todos los items
-            menuItems.forEach(mi => mi.classList.remove('active'));
-            // Agregar clase active al item clickeado
-            item.classList.add('active');
-            // Ocultar todas las secciones
-            sections.forEach(section => section.classList.remove('active'));
-            // Mostrar la sección seleccionada
-            document.getElementById(sectionName).classList.add('active');
-            // Cambiar el título
-            pageTitle.innerHTML = titles[sectionName];
-        }
 
         // Función de cerrar sesión
         function logout() {
@@ -820,119 +797,7 @@
             window.location.href = 'login.html';
         }
 
-        // Detect unsaved changes
-        function hasUnsavedChanges() {
-            return document.querySelectorAll('.dirty-row').length > 0;
-        }
-
-        // Show the unsaved modal; onConfirm callback is executed if user chooses to continue after saving or leaving
-        function showUnsavedModal(onConfirm) {
-            const modal = document.getElementById('unsavedModal');
-            // update counter
-            const count = document.querySelectorAll('.dirty-row').length;
-            const countEl = document.getElementById('unsavedCount');
-            if (countEl) countEl.textContent = count;
-            modal.style.display = 'flex';
-
-            const cancelBtn = document.getElementById('unsavedCancel');
-            const leaveBtn = document.getElementById('unsavedLeave');
-            const saveBtn = document.getElementById('unsavedSave');
-
-            // prevent clicks inside the modal from bubbling to document (which intercepts navigation)
-            const modalContent = modal ? modal.querySelector('div') : null;
-            const modalClickHandler = function(e) { e.stopPropagation(); };
-            const contentClickHandler = function(e) { e.stopPropagation(); };
-            if (modal) modal.addEventListener('click', modalClickHandler);
-            if (modalContent) modalContent.addEventListener('click', contentClickHandler);
-
-            function cleanup() {
-                if (modal) modal.style.display = 'none';
-                if (cancelBtn) cancelBtn.removeEventListener('click', onCancel);
-                if (leaveBtn) leaveBtn.removeEventListener('click', onLeave);
-                if (saveBtn) saveBtn.removeEventListener('click', onSave);
-                if (modal) modal.removeEventListener('click', modalClickHandler);
-                if (modalContent) modalContent.removeEventListener('click', contentClickHandler);
-            }
-
-            function onCancel() {
-                cleanup();
-            }
-
-            function onLeave() {
-                // Clear visual dirty marks without saving
-                document.querySelectorAll('.dirty-row').forEach(r => clearRowDirty(r));
-                cleanup();
-                if (typeof onConfirm === 'function') onConfirm();
-            }
-
-            async function onSave() {
-                // Save all dirty rows (attempt to detect type by data attributes)
-                await saveAllDirty();
-                cleanup();
-                if (typeof onConfirm === 'function') onConfirm();
-            }
-
-            if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
-            if (leaveBtn) leaveBtn.addEventListener('click', onLeave);
-            if (saveBtn) saveBtn.addEventListener('click', onSave);
-        }
-
-        // Save all rows currently marked dirty. Returns a Promise that resolves when done.
-        function saveAllDirty() {
-            return new Promise(resolve => {
-                const dirtyRows = Array.from(document.querySelectorAll('.dirty-row'));
-                if (dirtyRows.length === 0) return resolve();
-
-                dirtyRows.forEach(row => {
-                    if (row.hasAttribute('data-game-id')) {
-                        const id = parseInt(row.getAttribute('data-game-id'));
-                        saveGame(id);
-                    } else if (row.hasAttribute('data-news-id')) {
-                        const id = parseInt(row.getAttribute('data-news-id'));
-                        saveNews(id);
-                    } else if (row.hasAttribute('data-descripcion-id')) {
-                        const id = parseInt(row.getAttribute('data-descripcion-id'));
-                        saveDescripcion(id);
-                    } else if (row.hasAttribute('data-requisito-id')) {
-                        const id = parseInt(row.getAttribute('data-requisito-id'));
-                        saveRequisito(id);
-                    }
-                    // clear visual now (save functions will also clear/react)
-                    clearRowDirty(row);
-                });
-
-                // small timeout to allow save functions to finish their UI updates
-                setTimeout(resolve, 300);
-            });
-        }
-
-        // Intercept clicks on anchors that navigate away from the page and warn if unsaved changes
-        document.addEventListener('click', function(e) {
-            const a = e.target.closest('a');
-            if (!a) return;
-            const href = a.getAttribute('href');
-            if (!href) return;
-            // ignore purely in-page anchors
-            if (href.startsWith('#')) return;
-
-            // If there are unsaved changes, intercept navigation and offer modal
-            if (hasUnsavedChanges()) {
-                e.preventDefault();
-                // on confirm, navigate to the link
-                showUnsavedModal(() => {
-                    window.location.href = a.href;
-                });
-            }
-        });
-
-        // Warn on page unload if unsaved changes exist (native browser dialog)
-        window.addEventListener('beforeunload', function(e) {
-            if (hasUnsavedChanges()) {
-                e.preventDefault();
-                e.returnValue = '';
-                return '';
-            }
-        });
+        
 
         // Función para limpiar lista de visitantes
         function clearVisitantes() {
