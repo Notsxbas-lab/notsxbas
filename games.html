@@ -452,6 +452,13 @@
                     </div>
                 </div>
             `).join('');
+
+            // On small screens, switch to the noticias section so mobile users see news
+            try {
+                if (window.innerWidth <= 800) {
+                    showSection('noticias');
+                }
+            } catch (e) {}
         }
 
         function showNews(newsId) {
