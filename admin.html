@@ -870,6 +870,10 @@
             }
 
             const tableBody = document.getElementById('juegos-table');
+            // Cargar descripciones y requisitos para mostrar badges si faltan
+            const allDescripciones = JSON.parse(localStorage.getItem('descripciones')) || [];
+            const allRequisitos = JSON.parse(localStorage.getItem('requisitos')) || [];
+
             tableBody.innerHTML = games.map(game => `
                 <tr data-game-id="${game.id}">
                     <td>${game.id}</td>
@@ -888,6 +892,10 @@
                                 <option value="Activo" ${game.estado === 'Activo' ? 'selected' : ''}>Activo</option>
                                 <option value="Inactivo" ${game.estado === 'Inactivo' ? 'selected' : ''}>Inactivo</option>
                             </select>
+                            <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                                ${allDescripciones.some(d => d.juego === game.nombre) ? '' : '<span class="status-badge status-inactive" title="Falta descripción">Desc faltante</span>'}
+                                ${allRequisitos.some(r => r.juego === game.nombre) ? '' : '<span class="status-badge status-inactive" title="Faltan requisitos">Req faltante</span>'}
+                            </div>
                         </div>
                     </td>
                     <td contenteditable="true" class="editable-cell">${game.descripcion || ''}</td>
