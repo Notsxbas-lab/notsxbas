@@ -406,6 +406,24 @@
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const newsGrid = document.getElementById('news-grid');
 
+            // Si localStorage está vacío (ej. en otro dispositivo), intenta cargar noticias compartidas desde news.json
+            if (news.length === 0) {
+                fetch('/news.json').then(resp => {
+                    if (!resp.ok) throw new Error('No fallback');
+                    return resp.json();
+                }).then(remoteNews => {
+                    if (Array.isArray(remoteNews) && remoteNews.length > 0) {
+                        news = remoteNews;
+                        renderNewsGrid(newsGrid, news);
+                    } else {
+                        renderNewsGrid(newsGrid, []);
+                    }
+                }).catch(() => {
+                    renderNewsGrid(newsGrid, []);
+                });
+                return;
+            }
+
             renderNewsGrid(newsGrid, news);
             return (news || []).filter(item => item.estado === 'Publicado');
         }
