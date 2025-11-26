@@ -347,6 +347,15 @@
             background: #27ae60;
             transform: translateY(-2px);
         }
+        /* Visual cue for rows with unsaved changes */
+        .dirty-row {
+            background: #fff8e1 !important;
+        }
+        .btn-save.dirty {
+            background: #f1c40f !important;
+            color: #2c3e50;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+        }
         .status-badge {
             padding: 5px 12px;
             border-radius: 20px;
@@ -999,6 +1008,8 @@
             localStorage.setItem('games', JSON.stringify(games));
             loadGames();
             loadDescripciones();
+            // Re-attach listeners so newly rendered editable cells get handlers
+            attachEditableListeners();
         }
 
         function cancelAddGame(button) {
@@ -1113,6 +1124,9 @@
 
             localStorage.setItem('games', JSON.stringify(games));
             showSuccessNotification();
+            // After saving, reload the games table to update badges and clear dirty state
+            loadGames();
+            attachEditableListeners();
         }
 
         function changeImage(id) {
@@ -1294,6 +1308,34 @@
             loadNews();
         }
 
+        // -- Unsaved-change helpers: mark row dirty and attach listeners to editable cells
+        function markRowDirty(row) {
+            if (!row) return;
+            row.classList.add('dirty-row');
+            const saveBtn = row.querySelector('.btn-save');
+            if (saveBtn) saveBtn.classList.add('dirty');
+        }
+
+        function clearRowDirty(row) {
+            if (!row) return;
+            row.classList.remove('dirty-row');
+            const saveBtn = row.querySelector('.btn-save');
+            if (saveBtn) saveBtn.classList.remove('dirty');
+        }
+
+        function attachEditableListeners() {
+            // For any contenteditable cell, mark its row as dirty on input
+            const editableCells = document.querySelectorAll('.editable-cell');
+            editableCells.forEach(cell => {
+                // Remove previous handler if exists to avoid duplicates
+                cell.oninput = null;
+                cell.oninput = function() {
+                    const row = cell.closest('tr');
+                    markRowDirty(row);
+                };
+            });
+        }
+
 
         function changeNewsStatus(id, newStatus) {
             let news = JSON.parse(localStorage.getItem('news')) || [];
@@ -1335,6 +1377,10 @@
             localStorage.setItem('news', JSON.stringify(news));
             showSuccessNotification();
             loadNews();
+            attachEditableListeners();
+            // clear dirty state for this row
+            const rowEl = document.querySelector(`tr[data-news-id="${id}"]`);
+            clearRowDirty(rowEl);
         }
 
         function updateNewsCount(count) {
@@ -1625,6 +1671,8 @@
             loadNews();
             loadRequisitos();
             loadDescripciones();
+            // Attach listeners to editable cells so unsaved changes are tracked
+            attachEditableListeners();
         });
     </script>
 </body>
