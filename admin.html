@@ -961,7 +961,7 @@
             };
 
             games.push(newGame);
-
+            
             // Agregar entrada a descripciones si no existe
             let descripciones = JSON.parse(localStorage.getItem('descripciones')) || [];
             const existingDesc = descripciones.find(d => d.juego === newGame.nombre);
@@ -973,6 +973,19 @@
                     descripcion: newGame.descripcion || ''
                 });
                 localStorage.setItem('descripciones', JSON.stringify(descripciones));
+            }
+
+            // Agregar entrada a requisitos si no existe (para que admin pueda completar luego)
+            let requisitos = JSON.parse(localStorage.getItem('requisitos')) || [];
+            const existingReq = requisitos.find(r => r.juego === newGame.nombre);
+            if (!existingReq) {
+                const newReqId = requisitos.length > 0 ? Math.max(...requisitos.map(r => r.id)) + 1 : 1;
+                requisitos.push({
+                    id: newReqId,
+                    juego: newGame.nombre,
+                    requisitos: ''
+                });
+                localStorage.setItem('requisitos', JSON.stringify(requisitos));
             }
 
             localStorage.setItem('games', JSON.stringify(games));
@@ -1067,11 +1080,28 @@
             const game = games.find(g => g.id === id);
             if (!game) return;
 
+            const oldName = game.nombre;
+
             game.nombre = nombre;
             game.genero = genero;
             game.plataforma = plataforma;
             game.fecha = fecha;
             game.descripcion = descripcion;
+
+            // Si el nombre cambió, actualizar también descripciones y requisitos para mantener consistencia
+            if (oldName !== nombre) {
+                let descripciones = JSON.parse(localStorage.getItem('descripciones')) || [];
+                descripciones.forEach(d => {
+                    if (d.juego === oldName) d.juego = nombre;
+                });
+                localStorage.setItem('descripciones', JSON.stringify(descripciones));
+
+                let requisitos = JSON.parse(localStorage.getItem('requisitos')) || [];
+                requisitos.forEach(r => {
+                    if (r.juego === oldName) r.juego = nombre;
+                });
+                localStorage.setItem('requisitos', JSON.stringify(requisitos));
+            }
 
             localStorage.setItem('games', JSON.stringify(games));
             showSuccessNotification();
