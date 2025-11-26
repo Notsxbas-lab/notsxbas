@@ -11,7 +11,54 @@
             padding: 0;
             box-sizing: border-box;
         }
-            }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+        .sidebar h2 {
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar h2 i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar ul li {
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            font-weight: 500;
             font-size: 16px;
         }
         .sidebar ul li a i {
@@ -35,6 +82,7 @@
         }
         .main-content {
             flex-grow: 1;
+            margin-left: 280px;
             padding: 20px;
             transition: margin-left 0.3s ease;
         }
@@ -48,55 +96,45 @@
             margin-bottom: 10px;
         }
         .header h1 i {
-            color: #3498db;
-            margin-right: 15px;
+            margin-right: 10px;
         }
         .header p {
-            font-size: 18px;
+            font-size: 14px;
             opacity: 0.9;
         }
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
         }
-        .game-card, .news-card {
+        .game-card {
             background: white;
             border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
-        .game-card:hover, .news-card:hover {
+        .game-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             transform: translateY(-5px);
         }
         .game-image {
-            height: 200px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 48px;
-        }
-        .news-image {
-            height: 150px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
+            font-size: 64px;
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 15px;
         }
         .game-content {
-            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
-        .news-content {
-            padding: 20px;
-        }
-        .game-title, .news-title {
-            font-size: 20px;
+        .game-title {
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 10px;
             color: #2c3e50;
@@ -124,6 +162,69 @@
             background: #d5f4e6;
             color: #27ae60;
         }
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .news-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transform: translateY(-5px);
+        }
+        .news-image {
+            font-size: 64px;
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .news-content {
+            flex-grow: 1;
+        }
+        .news-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .news-meta {
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .news-meta span {
+            margin-right: 10px;
+        }
+        .news-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .news-category {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #3498db;
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .news-views {
+            font-size: 12px;
+            color: #27ae60;
+            font-weight: bold;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -146,107 +247,84 @@
             overflow-y: auto;
             position: relative;
         }
-
-        /* Responsive: mobile adjustments */
-        @media (max-width: 800px) {
-            .container { flex-direction: column; }
-            .sidebar { display: none; }
-            .main-content { padding: 12px; }
-            .games-grid { grid-template-columns: 1fr; gap: 18px; }
-            .game-image { height: 160px; font-size: 40px; }
-            .news-image { height: 120px; font-size: 32px; }
-            .modal-content { width: 96%; max-width: 96%; border-radius: 10px; padding: 18px; }
-            .header h1 { font-size: 22px; }
-            .header p { font-size: 14px; }
-            /* Mobile nav (visible on phones) */
-            .mobile-nav { display: flex; gap: 8px; margin-bottom: 12px; justify-content: center; }
-            .mobile-nav button { background: #3498db; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight:600; }
-            .mobile-nav button.active { background: #2c3e50; }
-        }
-        @media (min-width: 801px) {
-            .mobile-nav { display: none; }
-        }
         .close {
             position: absolute;
-            top: 15px;
             right: 20px;
+            top: 20px;
             font-size: 28px;
+            font-weight: bold;
             cursor: pointer;
             color: #7f8c8d;
         }
         .close:hover {
             color: #2c3e50;
         }
-        .modal h2 {
+        .requirements {
+            margin-top: 20px;
+        }
+        .requirements h3 {
+            margin-bottom: 15px;
             color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 24px;
         }
-        .modal .game-meta {
-            margin-bottom: 20px;
-        }
-        .modal .requirements {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 5px solid #3498db;
-        }
-        .modal .requirements h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        .modal .requirements p {
+        .requirements p {
+            line-height: 1.8;
             color: #555;
-            line-height: 1.6;
         }
-        function loadNews() {
-            // If there are no news stored locally (localStorage is per-device),
-            // try to fetch a static fallback `/news.json` bundled with the site.
-            // This allows mobile visitors to see news even if they were created on another device.
-            if (news.length === 0) {
-                // show a temporary loading message while we try to fetch fallback
-                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 20px;">Cargando noticias...</p>';
-                fetch('/news.json').then(resp => {
-                    if (!resp.ok) throw new Error('No fallback');
-                    return resp.json();
-                }).then(remoteNews => {
-                    if (Array.isArray(remoteNews) && remoteNews.length > 0) {
-                        localStorage.setItem('news', JSON.stringify(remoteNews));
-                        news = remoteNews;
-                    }
-                    renderNewsGrid(newsGrid, news);
-                }).catch(() => {
-                    // no fallback available — render empty state
-                    renderNewsGrid(newsGrid, news);
-                });
-                return;
-            }
-
-            renderNewsGrid(newsGrid, news);
+        .section-content {
+            display: none;
         }
-
-        function renderNewsGrid(newsGrid, newsArray) {
-            const publicadas = (newsArray || []).filter(item => item.estado === 'Publicado');
-            if (publicadas.length === 0) {
-                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No hay noticias disponibles. Crea una desde el panel de admin.</p>';
-                return;
-            }
-
-            newsGrid.innerHTML = publicadas.map(item => `
-        .news-category {
-            display: inline-block;
-            padding: 4px 10px;
+        .section-content.active {
+            display: block;
+        }
+        .mobile-nav {
+            display: none;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .mobile-nav button {
+            padding: 10px 20px;
             background: #3498db;
             color: white;
-            border-radius: 12px;
-            font-size: 11px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .mobile-nav button.active {
+            background: #2980b9;
             font-weight: bold;
         }
-        .news-views {
-            font-size: 12px;
-            color: #27ae60;
-            font-weight: bold;
+        .mobile-nav button:not(.active) {
+            background: #95a5a6;
+        }
+        @media (max-width: 800px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+                z-index: 50;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            .mobile-nav {
+                display: flex;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -269,7 +347,6 @@
                 <p>Descubre los mejores juegos del momento</p>
             </div>
 
-            <!-- Mobile navigation: visible only on small screens -->
             <div class="mobile-nav" role="tablist" aria-label="Navegación móvil">
                 <button id="mobile-juegos" class="active">Juegos</button>
                 <button id="mobile-noticias">Noticias</button>
@@ -280,27 +357,23 @@
             </div>
 
             <div id="noticias" class="section-content">
-                <div style="border: 2px solid #3498db; border-radius: 10px; padding: 20px; background: rgba(255,255,255,0.9);">
-                    <div class="games-grid" id="news-grid"></div>
-                </div>
+                <div class="news-grid" id="news-grid"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para requisitos de juegos -->
     <div id="requirementsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <h2 id="modalGameTitle"></h2>
             <div class="game-meta" id="modalGameMeta"></div>
             <div class="requirements">
-                <h3><i class="fas fa-cogs"></i> Requisitos del Sistema</h3>
+                <h3><i class="fas fa-list"></i> Requisitos</h3>
                 <p id="modalRequirements"></p>
             </div>
         </div>
     </div>
 
-    <!-- Modal para noticias -->
     <div id="newsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeNewsModal()">&times;</span>
@@ -319,7 +392,6 @@
     <script>
         function loadGames() {
             let games = JSON.parse(localStorage.getItem('games')) || [];
-
             if (games.length === 0) {
                 games = [
                     { id: 1, nombre: 'The Legend of Zelda: Tears of the Kingdom', genero: 'Aventura', plataforma: 'Nintendo Switch', fecha: '12/05/2023', estado: 'Activo', descripcion: 'Embárcate en una aventura épica en el reino de Hyrule.', requisitos: 'Nintendo Switch con 7GB de espacio disponible' },
@@ -328,7 +400,6 @@
                 ];
                 localStorage.setItem('games', JSON.stringify(games));
             }
-
             const gamesGrid = document.getElementById('games-grid');
             gamesGrid.innerHTML = games.map(game => `
                 <div class="game-card" onclick="showRequirements(${game.id})">
@@ -351,22 +422,19 @@
                 const response = await fetch('https://api.ipify.org?format=json');
                 const data = await response.json();
                 return data.ip;
-            } catch (error) {
-                return 'Desconocida';
+            } catch (e) {
+                return 'Unknown';
             }
         }
 
         async function registerVisitor() {
             const ip = await getVisitorIP();
-            const now = new Date();
+            const visitantes = JSON.parse(localStorage.getItem('visitantes')) || [];
             const visitor = {
-                id: Date.now(),
                 ip: ip,
-                pagina: 'Juegos',
-                fecha: now.toLocaleString('es-ES')
+                fecha: new Date().toLocaleString('es-ES'),
+                pagina: 'games.html'
             };
-
-            let visitantes = JSON.parse(localStorage.getItem('visitantes')) || [];
             visitantes.push(visitor);
             localStorage.setItem('visitantes', JSON.stringify(visitantes));
         }
@@ -374,9 +442,7 @@
         function showRequirements(gameId) {
             const games = JSON.parse(localStorage.getItem('games')) || [];
             const game = games.find(g => g.id === gameId);
-
             if (!game) return;
-
             document.getElementById('modalGameTitle').textContent = game.nombre;
             document.getElementById('modalGameMeta').innerHTML = `
                 <span><i class="fas fa-tag"></i> ${game.genero}</span>
@@ -405,8 +471,6 @@
         function loadNews() {
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const newsGrid = document.getElementById('news-grid');
-
-            // Si localStorage está vacío (ej. en otro dispositivo), intenta cargar noticias compartidas desde news.json
             if (news.length === 0) {
                 fetch('/news.json').then(resp => {
                     if (!resp.ok) throw new Error('No fallback');
@@ -423,24 +487,15 @@
                 });
                 return;
             }
-
             renderNewsGrid(newsGrid, news);
-            return (news || []).filter(item => item.estado === 'Publicado');
         }
 
         function renderNewsGrid(newsGrid, newsArray) {
             const publicadas = (newsArray || []).filter(item => item.estado === 'Publicado');
             if (publicadas.length === 0) {
-                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No hay noticias disponibles. Crea una desde el panel de admin.</p>';
-                // On small screens, switch to the noticias section even if empty
-                try {
-                    if (window.innerWidth <= 800) {
-                        setTimeout(() => showSection('noticias'), 100);
-                    }
-                } catch (e) {}
+                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No hay noticias disponibles.</p>';
                 return;
             }
-
             newsGrid.innerHTML = publicadas.map(item => `
                 <div class="news-card" onclick="showNews(${item.id})">
                     <div class="news-image"><i class="fas fa-newspaper"></i></div>
@@ -457,24 +512,14 @@
                     </div>
                 </div>
             `).join('');
-
-            // On small screens, switch to the noticias section so mobile users see news in separate tab
-            try {
-                if (window.innerWidth <= 800) {
-                    setTimeout(() => showSection('noticias'), 100);
-                }
-            } catch (e) {}
         }
 
         function showNews(newsId) {
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const item = news.find(n => n.id === newsId);
-
             if (!item) return;
-
             item.vistas = (item.vistas || 0) + 1;
             localStorage.setItem('news', JSON.stringify(news));
-
             document.getElementById('modalNewsTitle').textContent = item.titulo;
             document.getElementById('modalNewsMeta').innerHTML = `
                 <span><i class="fas fa-user"></i> ${item.autor}</span>
@@ -484,7 +529,6 @@
             document.getElementById('modalNewsContent').innerHTML = item.contenido || 'Contenido no disponible';
             document.getElementById('modalNewsViews').textContent = item.vistas;
             document.getElementById('newsModal').style.display = 'flex';
-
             setTimeout(() => loadNews(), 500);
         }
 
@@ -502,22 +546,16 @@
             });
         });
 
-        // Mobile nav handlers: switch sections when buttons tapped
         const mobileJuegosBtn = document.getElementById('mobile-juegos');
         const mobileNoticiasBtn = document.getElementById('mobile-noticias');
 
         function showSection(sectionName) {
-            // Update sidebar visual state (if present)
             menuItems.forEach(mi => mi.classList.remove('active'));
             const menuItem = document.querySelector(`.sidebar ul li[data-section="${sectionName}"]`);
             if (menuItem) menuItem.classList.add('active');
-
-            // Show section content
             sections.forEach(section => section.classList.remove('active'));
             const el = document.getElementById(sectionName);
             if (el) el.classList.add('active');
-
-            // Update mobile buttons active state
             if (sectionName === 'juegos') {
                 mobileJuegosBtn.classList.add('active');
                 mobileNoticiasBtn.classList.remove('active');
@@ -532,18 +570,11 @@
 
         window.addEventListener('load', function() {
             loadGames();
-            const publicadas = loadNews();
+            loadNews();
             registerVisitor();
             setInterval(function() {
                 loadNews();
             }, 3000);
-
-            // If on a small screen and there are published news, default to the Noticias tab
-            try {
-                if (window.innerWidth <= 800 && publicadas && publicadas.length > 0) {
-                    showSection('noticias');
-                }
-            } catch (e) {}
         });
     </script>
 </body>
