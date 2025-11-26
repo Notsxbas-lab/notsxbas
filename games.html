@@ -439,12 +439,21 @@
         function loadNews() {
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const newsGrid = document.getElementById('news-grid');
+            // If there are no news stored (different devices won't share localStorage),
+            // seed a small set of public sample news so mobile visitors see content.
+            if (news.length === 0) {
+                news = [
+                    { id: 1, titulo: 'Bienvenidos a Gaming Info', categoria: 'General', autor: 'Admin', fecha: new Date().toLocaleDateString('es-ES'), contenido: '¡Bienvenido al sitio! Aquí encontrarás noticias y actualizaciones sobre los mejores juegos.', vistas: 0, estado: 'Publicado' },
+                    { id: 2, titulo: 'Actualización semanal', categoria: 'Actualizaciones', autor: 'Equipo', fecha: new Date().toLocaleDateString('es-ES'), contenido: 'Resumen de novedades y parches importantes de la semana.', vistas: 0, estado: 'Publicado' }
+                ];
+                localStorage.setItem('news', JSON.stringify(news));
+            }
 
             const publicadas = news.filter(item => item.estado === 'Publicado');
 
             if (publicadas.length === 0) {
                 newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No hay noticias disponibles. Crea una desde el panel de admin.</p>';
-                return;
+                return publicadas;
             }
 
             newsGrid.innerHTML = publicadas.map(item => `
@@ -463,6 +472,8 @@
                     </div>
                 </div>
             `).join('');
+
+            return publicadas;
         }
 
         function showNews(newsId) {
@@ -531,11 +542,18 @@
 
         window.addEventListener('load', function() {
             loadGames();
-            loadNews();
+            const publicadas = loadNews();
             registerVisitor();
             setInterval(function() {
                 loadNews();
             }, 3000);
+
+            // If on a small screen and there are published news, default to the Noticias tab
+            try {
+                if (window.innerWidth <= 800 && publicadas && publicadas.length > 0) {
+                    showSection('noticias');
+                }
+            } catch (e) {}
         });
     </script>
 </body>
