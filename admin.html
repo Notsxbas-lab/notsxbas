@@ -11,6 +11,8 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -390,10 +392,9 @@
         <div style="background:white; border-radius:12px; width:420px; max-width:90%; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,0.35); text-align:left;">
             <div style="display:flex; align-items:center; gap:12px;">
                 <div style="width:44px; height:44px; border-radius:50%; background:#f39c12; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;"><i class="fas fa-exclamation"></i></div>
-                <div>
-                    <h3 style="margin:0 0 6px 0; color:#2c3e50; font-size:18px;">Tienes cambios sin guardar</h3>
-                    <p style="margin:0; color:#7f8c8d; font-size:14px;">Hay cambios pendientes en ciertas filas. ¿Qué deseas hacer antes de salir?</p>
-                </div>
+                        <h3 style="margin:0 0 6px 0; color:#2c3e50; font-size:18px;">Tienes cambios sin guardar</h3>
+                        <p style="margin:0; color:#7f8c8d; font-size:14px;">Hay <strong id="unsavedCount">0</strong> fila(s) con cambios pendientes. ¿Qué deseas hacer antes de salir?</p>
+                    </div>
             </div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
                 <button id="unsavedCancel" style="background:#ecf0f1; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;">Cancelar</button>
@@ -827,6 +828,10 @@
         // Show the unsaved modal; onConfirm callback is executed if user chooses to continue after saving or leaving
         function showUnsavedModal(onConfirm) {
             const modal = document.getElementById('unsavedModal');
+            // update counter
+            const count = document.querySelectorAll('.dirty-row').length;
+            const countEl = document.getElementById('unsavedCount');
+            if (countEl) countEl.textContent = count;
             modal.style.display = 'flex';
 
             const cancelBtn = document.getElementById('unsavedCancel');
@@ -891,6 +896,34 @@
                 setTimeout(resolve, 300);
             });
         }
+
+        // Intercept clicks on anchors that navigate away from the page and warn if unsaved changes
+        document.addEventListener('click', function(e) {
+            const a = e.target.closest('a');
+            if (!a) return;
+            const href = a.getAttribute('href');
+            if (!href) return;
+            // ignore purely in-page anchors
+            if (href.startsWith('#')) return;
+
+            // If there are unsaved changes, intercept navigation and offer modal
+            if (hasUnsavedChanges()) {
+                e.preventDefault();
+                // on confirm, navigate to the link
+                showUnsavedModal(() => {
+                    window.location.href = a.href;
+                });
+            }
+        });
+
+        // Warn on page unload if unsaved changes exist (native browser dialog)
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges()) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
 
         // Función para limpiar lista de visitantes
         function clearVisitantes() {
