@@ -406,25 +406,6 @@
             let news = JSON.parse(localStorage.getItem('news')) || [];
             const newsGrid = document.getElementById('news-grid');
 
-            if (news.length === 0) {
-                // show loading while trying to fetch static fallback
-                newsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 20px;">Cargando noticias...</p>';
-                fetch('/news.json').then(resp => {
-                    if (!resp.ok) throw new Error('No fallback');
-                    return resp.json();
-                }).then(remoteNews => {
-                    if (Array.isArray(remoteNews) && remoteNews.length > 0) {
-                        localStorage.setItem('news', JSON.stringify(remoteNews));
-                        news = remoteNews;
-                    }
-                    renderNewsGrid(newsGrid, news);
-                }).catch(() => {
-                    // fallback failed — render empty state
-                    renderNewsGrid(newsGrid, news);
-                });
-                return;
-            }
-
             renderNewsGrid(newsGrid, news);
             return (news || []).filter(item => item.estado === 'Publicado');
         }
