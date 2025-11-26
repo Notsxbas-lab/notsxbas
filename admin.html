@@ -23,7 +23,7 @@
             display: flex;
         }
                 .sidebar {
-            width: 280px;
+                    width: 260px;
             background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
             color: white;
             height: 100vh;
@@ -89,41 +89,54 @@
             transition: margin-left 0.3s ease;
         }
         .sidebar.collapsed {
-            width: 60px;
+            width: 72px;
+            transition: width 240ms cubic-bezier(.2,.8,.2,1);
         }
-        .sidebar.collapsed .sidebar h2 {
-            display: none;
-        }
-        .sidebar.collapsed ul li a span {
-            display: none;
-        }
-        .sidebar.collapsed ul li a i {
-            margin-right: 0;
-            width: 100%;
-            text-align: center;
-        }
-        .sidebar.collapsed + .main-content {
-            margin-left: 60px;
+        .sidebar.collapsed .sidebar h2 { display: none; }
+        .sidebar.collapsed ul li a span { display: none; }
+        .sidebar.collapsed ul li a i { margin-right: 0; width: 100%; text-align: center; }
+        .sidebar.collapsed + .main-content { margin-left: 72px; }
+
+        /* Tooltip shown when sidebar is collapsed and item hovered */
+        .sidebar ul li { position: relative; }
+        .sidebar.collapsed ul li:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 78px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            color: #2c3e50;
+            padding: 6px 10px;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            white-space: nowrap;
+            z-index: 2000;
+            font-size: 13px;
         }
         .toggle-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            background: linear-gradient(135deg,#3b82f6,#6c5ce7);
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             cursor: pointer;
-            z-index: 1000;
-            display: flex;
+            z-index: 1100;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            transition: background 0.3s ease;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            transition: transform 180ms ease, background 200ms ease;
         }
         .toggle-btn:hover {
-            background: rgba(0,0,0,0.9);
+            transform: translateY(-3px);
         }
+        .toggle-btn span { margin-left: 8px; font-weight:600; }
                 .header {
             background: white;
             padding: 25px 30px;
@@ -388,57 +401,57 @@
 </head>
 <body>
     
-    <button class="toggle-btn" id="toggle-btn">
-        <i class="fas fa-bars"></i>
+    <button class="toggle-btn" id="toggle-btn" aria-label="Alternar menú" aria-expanded="true">
+        <i class="fas fa-chevron-left"></i>
         <span>Menú</span>
     </button>
     <div class="container">
         <div class="sidebar">
             <h2><i class="fas fa-gamepad"></i>Gaming Admin</h2>
             <ul>
-                <li data-section="dashboard" class="active">
+                <li data-section="dashboard" class="active" data-title="Dashboard">
                     <a href="#">
                         <i class="fas fa-chart-line"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li data-section="visitantes">
+                <li data-section="visitantes" data-title="Visitantes">
                     <a href="#">
                         <i class="fas fa-users"></i>
                         <span>Visitantes</span>
                     </a>
                 </li>
-                <li data-section="juegos">
+                <li data-section="juegos" data-title="Juegos">
                     <a href="#">
                         <i class="fas fa-gamepad"></i>
                         <span>Juegos</span>
                     </a>
                 </li>
-                <li data-section="requisitos">
+                <li data-section="requisitos" data-title="Requisitos">
                     <a href="#">
                         <i class="fas fa-list"></i>
                         <span>Requisitos</span>
                     </a>
                 </li>
-                <li data-section="descripciones">
+                <li data-section="descripciones" data-title="Descripciones">
                     <a href="#">
                         <i class="fas fa-file-alt"></i>
                         <span>Descripciones</span>
                     </a>
                 </li>
-                <li data-section="noticias">
+                <li data-section="noticias" data-title="Noticias">
                     <a href="#">
                         <i class="fas fa-newspaper"></i>
                         <span>Noticias</span>
                     </a>
                 </li>
-                <li data-section="configuracion">
+                <li data-section="configuracion" data-title="Configuración">
                     <a href="#">
                         <i class="fas fa-cog"></i>
                         <span>Configuración</span>
                     </a>
                 </li>
-                <li>
+                <li data-title="Cerrar Sesión">
                     <a href="#" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Cerrar Sesión</span>
@@ -676,15 +689,21 @@
         const sidebar = document.querySelector('.sidebar');
 
         toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.toggle('collapsed');
             const icon = toggleBtn.querySelector('i');
             const span = toggleBtn.querySelector('span');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.className = 'fas fa-arrow-right';
-                span.textContent = 'Expandir';
+            // accessibility
+            toggleBtn.setAttribute('aria-expanded', (!isCollapsed).toString());
+            sidebar.setAttribute('aria-expanded', (!isCollapsed).toString());
+
+            if (isCollapsed) {
+                // collapsed state
+                icon.className = 'fas fa-chevron-right';
+                span.style.display = 'none';
             } else {
-                icon.className = 'fas fa-bars';
-                span.textContent = 'Menú';
+                // expanded
+                icon.className = 'fas fa-chevron-left';
+                span.style.display = '';
             }
         });
 
