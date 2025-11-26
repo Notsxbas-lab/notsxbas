@@ -1478,11 +1478,52 @@
             const req = requisitosList.find(r => r.id === id);
             if (!req) return;
 
+            // Guardar datos nuevos en la lista de requisitos
+            const oldJuego = req.juego;
             req.juego = juego;
             req.requisitos = requisitos;
 
             localStorage.setItem('requisitos', JSON.stringify(requisitosList));
+
+            // Actualizar también la entrada correspondiente en 'games' para que la vista pública refleje los cambios
+            let games = JSON.parse(localStorage.getItem('games')) || [];
+            // Buscar por el nombre antiguo, si no existe buscar por el nuevo nombre
+            let game = games.find(g => g.nombre === oldJuego) || games.find(g => g.nombre === juego);
+            if (game) {
+                // Actualizar requisitos del juego
+                game.requisitos = requisitos;
+
+                // Si el nombre del juego cambió en la tabla de requisitos, sincronizar el nombre en games y en descripciones
+                if (oldJuego !== juego) {
+                    game.nombre = juego;
+
+                    // Actualizar descripciones que referencien el nombre antiguo
+                    let descripciones = JSON.parse(localStorage.getItem('descripciones')) || [];
+                    descripciones.forEach(d => {
+                        if (d.juego === oldJuego) d.juego = juego;
+                    });
+                    localStorage.setItem('descripciones', JSON.stringify(descripciones));
+
+                    // También actualizar cualquier otra entrada en requisitos (por seguridad)
+                    requisitosList.forEach(r => {
+                        if (r.juego === oldJuego) r.juego = juego;
+                    });
+                    localStorage.setItem('requisitos', JSON.stringify(requisitosList));
+                }
+
+                localStorage.setItem('games', JSON.stringify(games));
+            }
+
             alert('Requisito guardado exitosamente');
+
+            // Recargar tablas para reflejar cambios en la UI
+            loadRequisitos();
+            loadGames();
+            attachEditableListeners();
+
+            // Limpiar estado 'dirty' de la fila
+            const rowEl = document.querySelector(`tr[data-requisito-id="${id}"]`);
+            clearRowDirty(rowEl);
         }
 
         function deleteRequisito(id) {
