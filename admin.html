@@ -838,11 +838,20 @@
             const leaveBtn = document.getElementById('unsavedLeave');
             const saveBtn = document.getElementById('unsavedSave');
 
+            // prevent clicks inside the modal from bubbling to document (which intercepts navigation)
+            const modalContent = modal ? modal.querySelector('div') : null;
+            const modalClickHandler = function(e) { e.stopPropagation(); };
+            const contentClickHandler = function(e) { e.stopPropagation(); };
+            if (modal) modal.addEventListener('click', modalClickHandler);
+            if (modalContent) modalContent.addEventListener('click', contentClickHandler);
+
             function cleanup() {
-                modal.style.display = 'none';
-                cancelBtn.removeEventListener('click', onCancel);
-                leaveBtn.removeEventListener('click', onLeave);
-                saveBtn.removeEventListener('click', onSave);
+                if (modal) modal.style.display = 'none';
+                if (cancelBtn) cancelBtn.removeEventListener('click', onCancel);
+                if (leaveBtn) leaveBtn.removeEventListener('click', onLeave);
+                if (saveBtn) saveBtn.removeEventListener('click', onSave);
+                if (modal) modal.removeEventListener('click', modalClickHandler);
+                if (modalContent) modalContent.removeEventListener('click', contentClickHandler);
             }
 
             function onCancel() {
@@ -863,9 +872,9 @@
                 if (typeof onConfirm === 'function') onConfirm();
             }
 
-            cancelBtn.addEventListener('click', onCancel);
-            leaveBtn.addEventListener('click', onLeave);
-            saveBtn.addEventListener('click', onSave);
+            if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
+            if (leaveBtn) leaveBtn.addEventListener('click', onLeave);
+            if (saveBtn) saveBtn.addEventListener('click', onSave);
         }
 
         // Save all rows currently marked dirty. Returns a Promise that resolves when done.
