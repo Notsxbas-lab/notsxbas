@@ -1680,5 +1680,23 @@
             attachEditableListeners();
         });
     </script>
+    <script>
+        // Ensure any beforeunload confirmation is disabled for this page.
+        // This adds a capturing listener that stops other beforeunload handlers from running
+        // and clears window.onbeforeunload. It minimizes the chance the browser shows
+        // the native unload dialog.
+        try {
+            window.onbeforeunload = null;
+        } catch (e) {}
+
+        try {
+            window.addEventListener('beforeunload', function (e) {
+                // Prevent other listeners from triggering the native dialog
+                e.stopImmediatePropagation();
+                // Do not set returnValue
+                if (e.preventDefault) e.preventDefault();
+            }, true);
+        } catch (e) {}
+    </script>
 </body>
 </html>
