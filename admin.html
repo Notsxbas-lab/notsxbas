@@ -1120,6 +1120,12 @@
         // Gestión de Noticias
         function loadNews() {
             let news = JSON.parse(localStorage.getItem('news')) || [];
+            // Eliminar noticias con vistas sospechosas (>=1000)
+            const originalCount = news.length;
+            news = news.filter(n => (n.vistas || 0) < 1000);
+            if (news.length !== originalCount) {
+                localStorage.setItem('news', JSON.stringify(news));
+            }
 
             const tableBody = document.getElementById('noticias-table');
 
@@ -1132,14 +1138,14 @@
             tableBody.innerHTML = news.map(item => `
                 <tr data-news-id="${item.id}">
                     <td>${item.id}</td>
-                    <td contenteditable="true" class="editable-news" data-field="titulo">${item.titulo}</td>
-                    <td contenteditable="true" class="editable-news" data-field="categoria">${item.categoria}</td>
-                    <td contenteditable="true" class="editable-news" data-field="autor">${item.autor}</td>
-                    <td contenteditable="true" class="editable-news" data-field="fecha">${item.fecha}</td>
+                    <td>${item.titulo}</td>
+                    <td>${item.categoria}</td>
+                    <td>${item.autor}</td>
+                    <td>${item.fecha}</td>
                     <td><strong style="color: #27ae60;">${item.vistas || 0}</strong></td>
                     <td>
                         <div>${item.contenido ? item.contenido.substring(0, 60) + '...' : 'Sin contenido'}</div>
-                        <button class="btn-action" onclick="editContent(${item.id})" style="margin-top:8px;"><i class="fas fa-pen"></i> Editar contenido</button>
+                        <button class="btn-action" onclick="editContent(${item.id})" style="margin-top:8px;"><i class="fas fa-pen"></i></button>
                     </td>
                     <td>
                         <select class="status-select" onchange="changeNewsStatus(${item.id}, this.value)">
@@ -1148,7 +1154,7 @@
                         </select>
                     </td>
                     <td>
-                        <button class="btn-action btn-save" onclick="saveNews(${item.id})"><i class="fas fa-save"></i></button>
+                        <button class="btn-action btn-edit" onclick="editNews(${item.id})"><i class="fas fa-edit"></i></button>
                         <button class="btn-action btn-delete" onclick="deleteNews(${item.id})"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
@@ -1236,39 +1242,7 @@
             loadNews();
         }
 
-        // Guardar cambios desde la tabla (campos editables)
-        function saveNews(id) {
-            const row = document.querySelector(`tr[data-news-id="${id}"]`);
-            if (!row) return;
-
-            const titleCell = row.querySelector('td[data-field="titulo"]');
-            const categoryCell = row.querySelector('td[data-field="categoria"]');
-            const authorCell = row.querySelector('td[data-field="autor"]');
-            const dateCell = row.querySelector('td[data-field="fecha"]');
-
-            const titulo = titleCell ? titleCell.textContent.trim() : '';
-            const categoria = categoryCell ? categoryCell.textContent.trim() : '';
-            const autor = authorCell ? authorCell.textContent.trim() : '';
-            const fecha = dateCell ? dateCell.textContent.trim() : '';
-
-            if (!titulo || !categoria || !autor || !fecha) {
-                alert('Título, categoría, autor y fecha son obligatorios');
-                return;
-            }
-
-            let news = JSON.parse(localStorage.getItem('news')) || [];
-            const item = news.find(n => n.id === id);
-            if (!item) return;
-
-            item.titulo = titulo;
-            item.categoria = categoria;
-            item.autor = autor;
-            item.fecha = fecha;
-
-            localStorage.setItem('news', JSON.stringify(news));
-            showSuccessNotification();
-            loadNews();
-        }
+        
 
         // Editar contenido completo de la noticia (prompt simple)
         function editContent(id) {
