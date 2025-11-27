@@ -12,24 +12,54 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
+        }
+        @media (max-width: 1024px) {
+            body::before {
+                content: "Esta página está optimizada para PC. Por favor, usa una pantalla más grande.";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                font-size: 24px;
+                z-index: 9999;
+            }
+            body > * {
+                display: none;
+            }
         }
         .container {
             display: flex;
             min-height: 100vh;
         }
         .sidebar {
-            display: none;
+            width: 260px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            height: 100vh;
+            padding: 0;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
         }
+
         .sidebar h2 {
-            padding: 0 20px;
-            margin-bottom: 30px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0,0,0,0.2);
+            margin: 0;
+            font-size: 24px;
+            border-bottom: 3px solid #3498db;
         }
         .sidebar h2 i {
             margin-right: 10px;
@@ -37,6 +67,7 @@
         }
         .sidebar ul {
             list-style: none;
+            padding: 20px 0;
         }
         .sidebar ul li {
             padding: 0;
@@ -72,11 +103,59 @@
         }
         .main-content {
             flex-grow: 1;
-            margin-left: 0;
+            margin-left: 260px;
             padding: 20px;
             transition: margin-left 0.3s ease;
-            width: 100%;
         }
+        .sidebar.collapsed {
+            width: 72px;
+            transition: width 240ms cubic-bezier(.2,.8,.2,1);
+        }
+        .sidebar.collapsed .sidebar h2 span { display: none; }
+        .sidebar.collapsed ul li a span { display: none; }
+        .sidebar.collapsed ul li a i { margin-right: 0; width: 100%; text-align: center; }
+        .sidebar.collapsed + .main-content { margin-left: 72px; }
+
+        /* Tooltip shown when sidebar is collapsed and item hovered */
+        .sidebar ul li { position: relative; }
+        .sidebar.collapsed ul li:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 78px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            color: #2c3e50;
+            padding: 6px 10px;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            white-space: nowrap;
+            z-index: 2000;
+            font-size: 13px;
+        }
+        .sidebar-toggle-btn {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            background: linear-gradient(135deg,#3b82f6,#6c5ce7);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1100;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            transition: transform 180ms ease, background 200ms ease;
+        }
+        .sidebar-toggle-btn:hover {
+            transform: translateY(-3px);
+        }
+        .sidebar-toggle-btn span { margin-left: 8px; font-weight:600; }
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -93,10 +172,11 @@
             font-size: 14px;
             opacity: 0.9;
         }
+
         .dropdown {
-            position: relative;
-            display: inline-block;
-            margin-left: auto;
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
         .dropbtn {
             background: #3498db;
@@ -142,6 +222,7 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -149,18 +230,37 @@
             margin-top: 20px;
         }
         .game-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
             display: flex;
             flex-direction: column;
+            border: 3px solid #3498db;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        .game-card:hover::before {
+            left: 100%;
         }
         .game-card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            transform: translateY(-10px) scale(1.03);
+            border-color: #2980b9;
+            background: linear-gradient(135deg, #e8f4f8 0%, #b8d4e3 100%);
         }
         .game-image {
             font-size: 64px;
@@ -209,18 +309,35 @@
             margin-top: 20px;
         }
         .news-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             display: flex;
             flex-direction: column;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .news-card:hover::before {
+            left: 100%;
         }
         .news-card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+            transform: translateY(-8px) scale(1.02);
+            border-color: #e74c3c;
         }
         .news-image {
             font-size: 64px;
@@ -314,82 +431,36 @@
             display: none;
         }
         .section-content.active {
-            display: block;
+            display: block !important;
         }
-        .mobile-nav {
-            display: none;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-        .mobile-nav button {
-            padding: 10px 20px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .mobile-nav button.active {
-            background: #2980b9;
-            font-weight: bold;
-        }
-        .mobile-nav button:not(.active) {
-            background: #95a5a6;
-        }
-        @media (max-width: 800px) {
-            .sidebar {
-                display: block;
-                width: 100%;
-                height: auto;
-                position: static;
-                background: #2c3e50;
-                padding: 15px 0;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            }
-            .sidebar h2 {
-                padding: 10px 20px;
-                margin-bottom: 15px;
-                font-size: 16px;
-            }
-            .sidebar ul {
-                display: none;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 10px;
-            }
-            .header h1 {
-                font-size: 24px;
-            }
-            .games-grid {
-                grid-template-columns: 1fr;
-            }
-            .news-grid {
-                grid-template-columns: 1fr;
-            }
-            .mobile-nav {
-                display: flex;
-            }
-            .modal-content {
-                width: 95%;
-                padding: 20px;
-            }
-        }
+
+
     </style>
 </head>
 <body>
+    <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Alternar menú" aria-expanded="true">
+        <i class="fas fa-chevron-left"></i>
+        <span>Menú</span>
+    </button>
+    <button class="toggle-btn" id="toggle-btn" aria-label="Alternar vista" aria-expanded="true">
+        <i class="fas fa-eye"></i>
+        <span>Mostrar</span>
+    </button>
     <div class="container">
         <div class="sidebar">
-            <h2><i class="fas fa-gamepad"></i> Gaming Info</h2>
+            <h2><i class="fas fa-gamepad"></i> <span>Gaming Info</span></h2>
             <ul>
-                <li data-section="juegos" class="active">
-                    <a href="#"><i class="fas fa-gamepad"></i><span>Juegos</span></a>
+                <li data-section="juegos" class="active" data-title="Juegos">
+                    <a href="#">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Juegos</span>
+                    </a>
                 </li>
-                <li data-section="noticias">
-                    <a href="#"><i class="fas fa-newspaper"></i><span>Noticias</span></a>
+                <li data-section="noticias" data-title="Noticias">
+                    <a href="#">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Noticias</span>
+                    </a>
                 </li>
             </ul>
         </div>
@@ -397,19 +468,10 @@
             <div class="header">
                 <h1><i class="fas fa-gamepad"></i> Juegos Disponibles</h1>
                 <p>Descubre los mejores juegos del momento</p>
-                <div class="dropdown">
-                    <button class="dropbtn"><i class="fas fa-bars"></i> Navegación</button>
-                    <div class="dropdown-content">
-                        <a href="#" onclick="showSection('juegos')"><i class="fas fa-gamepad"></i> Juegos</a>
-                        <a href="#" onclick="showSection('noticias')"><i class="fas fa-newspaper"></i> Noticias</a>
-                    </div>
-                </div>
+
             </div>
 
-            <div class="mobile-nav" role="tablist" aria-label="Navegación móvil">
-                <button id="mobile-juegos" class="active">Juegos</button>
-                <button id="mobile-noticias">Noticias</button>
-            </div>
+
 
             <div id="juegos" class="section-content active">
                 <div class="games-grid" id="games-grid"></div>
@@ -626,6 +688,33 @@
 
         if (mobileJuegosBtn) mobileJuegosBtn.addEventListener('click', () => showSection('juegos'));
         if (mobileNoticiasBtn) mobileNoticiasBtn.addEventListener('click', () => showSection('noticias'));
+
+
+
+        // Toggle sidebar collapse/expand
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const sidebar = document.querySelector('.sidebar');
+
+        sidebarToggleBtn.addEventListener('click', () => {
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            const icon = sidebarToggleBtn.querySelector('i');
+            const span = sidebarToggleBtn.querySelector('span');
+            // accessibility
+            sidebarToggleBtn.setAttribute('aria-expanded', (!isCollapsed).toString());
+            sidebar.setAttribute('aria-expanded', (!isCollapsed).toString());
+
+            if (isCollapsed) {
+                // collapsed state
+                icon.className = 'fas fa-chevron-right';
+                span.style.display = 'none';
+            } else {
+                // expanded
+                icon.className = 'fas fa-chevron-left';
+                span.style.display = '';
+            }
+        });
+
+
 
         window.addEventListener('load', function() {
             loadGames();
