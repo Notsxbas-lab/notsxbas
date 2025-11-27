@@ -196,6 +196,20 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
+        .header-actions .btn-export {
+            background: #f39c12;
+            color: white;
+        }
+        .header-actions .btn-export:hover {
+            background: #e67e22;
+        }
+        .header-actions .btn-import {
+            background: #9b59b6;
+            color: white;
+        }
+        .header-actions .btn-import:hover {
+            background: #8e44ad;
+        }
         .user-info {
             display: flex;
             align-items: center;
@@ -464,6 +478,8 @@
                 <h1 id="page-title"><i class="fas fa-chart-simple"></i>Estadísticas del Sitio</h1>
                 <div class="header-actions">
                     <a href="games.html" class="btn-view-site"><i class="fas fa-external-link-alt"></i> Ver Sitio</a>
+                    <button class="btn btn-export" onclick="exportData()"><i class="fas fa-download"></i> Exportar Datos</button>
+                    <button class="btn btn-import" onclick="importData()"><i class="fas fa-upload"></i> Importar Datos</button>
                     <div class="user-info">
                         <div class="user-avatar">
                             <i class="fas fa-user"></i>
@@ -1660,6 +1676,70 @@
                     modal.remove();
                 }
             }, 3000);
+        }
+
+        // Función para exportar datos
+        function exportData() {
+            const data = {
+                games: JSON.parse(localStorage.getItem('games')) || [],
+                news: JSON.parse(localStorage.getItem('news')) || [],
+                requisitos: JSON.parse(localStorage.getItem('requisitos')) || [],
+                descripciones: JSON.parse(localStorage.getItem('descripciones')) || [],
+                visitantes: JSON.parse(localStorage.getItem('visitantes')) || [],
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `gaming-info-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('Datos exportados exitosamente');
+        }
+
+        // Función para importar datos
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+
+                        if (confirm('¿Estás seguro de que quieres importar estos datos? Esto reemplazará todos los datos actuales.')) {
+                            if (data.games) localStorage.setItem('games', JSON.stringify(data.games));
+                            if (data.news) localStorage.setItem('news', JSON.stringify(data.news));
+                            if (data.requisitos) localStorage.setItem('requisitos', JSON.stringify(data.requisitos));
+                            if (data.descripciones) localStorage.setItem('descripciones', JSON.stringify(data.descripciones));
+                            if (data.visitantes) localStorage.setItem('visitantes', JSON.stringify(data.visitantes));
+
+                            // Recargar todas las secciones
+                            loadVisitantes();
+                            loadGames();
+                            loadNews();
+                            loadRequisitos();
+                            loadDescripciones();
+                            attachEditableListeners();
+
+                            alert('Datos importados exitosamente');
+                        }
+                    } catch (error) {
+                        alert('Error al importar el archivo. Asegúrate de que sea un archivo JSON válido.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
         }
 
         // Cargar juegos, noticias, requisitos y descripciones al cargar la página
