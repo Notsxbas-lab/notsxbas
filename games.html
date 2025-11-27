@@ -509,10 +509,28 @@
     <script>
         async function loadGames() {
             if (cachedGames.length === 0) {
-                // Load from localStorage (admin updates only)
+                // First try to load from localStorage (admin updates)
                 let gamesFromStorage = JSON.parse(localStorage.getItem('games')) || [];
-                // Filter to only show active games
-                cachedGames = gamesFromStorage.filter(game => game.estado === 'Activo');
+
+                if (gamesFromStorage.length > 0) {
+                    // Filter to only show active games
+                    cachedGames = gamesFromStorage.filter(game => game.estado === 'Activo');
+                } else {
+                    // Fallback to games.json file
+                    try {
+                        const response = await fetch('games.json');
+                        if (response.ok) {
+                            const allGames = await response.json();
+                            cachedGames = allGames.filter(game => game.estado === 'Activo');
+                        } else {
+                            // No games available
+                            cachedGames = [];
+                        }
+                    } catch (error) {
+                        // No games available
+                        cachedGames = [];
+                    }
+                }
             }
 
             const gamesGrid = document.getElementById('games-grid');
