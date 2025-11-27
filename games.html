@@ -509,25 +509,35 @@
     <script>
         async function loadGames() {
             if (cachedGames.length === 0) {
-                try {
-                    const response = await fetch('games.json');
-                    if (response.ok) {
-                        cachedGames = await response.json();
-                    } else {
-                        // Fallback to default games if file doesn't exist
+                // First try to load from localStorage (admin updates)
+                let gamesFromStorage = JSON.parse(localStorage.getItem('games')) || [];
+
+                if (gamesFromStorage.length > 0) {
+                    // Filter to only show active games
+                    cachedGames = gamesFromStorage.filter(game => game.estado === 'Activo');
+                } else {
+                    // Fallback to games.json file
+                    try {
+                        const response = await fetch('games.json');
+                        if (response.ok) {
+                            const allGames = await response.json();
+                            cachedGames = allGames.filter(game => game.estado === 'Activo');
+                        } else {
+                            // Fallback to default games if file doesn't exist
+                            cachedGames = [
+                                { id: 1, nombre: 'The Legend of Zelda: Tears of the Kingdom', genero: 'Aventura', plataforma: 'Nintendo Switch', fecha: '12/05/2023', estado: 'Activo', descripcion: 'Embárcate en una aventura épica en el reino de Hyrule.', requisitos: 'Nintendo Switch con 7GB de espacio disponible' },
+                                { id: 2, nombre: 'Elden Ring', genero: 'RPG', plataforma: 'PC, PS5, Xbox', fecha: '25/02/2022', estado: 'Activo', descripcion: 'Un RPG de acción en un mundo abierto creado por FromSoftware.', requisitos: 'Sistema operativo de 64 bits, 12 GB RAM' },
+                                { id: 3, nombre: 'God of War Ragnarök', genero: 'Acción', plataforma: 'PS4, PS5', fecha: '09/11/2022', estado: 'Activo', descripcion: 'Únete a Kratos y Atreus en su viaje final por los Nueve Reinos.', requisitos: 'PS4/PS5 con 100GB de espacio disponible' }
+                            ];
+                        }
+                    } catch (error) {
+                        // Fallback to default games if fetch fails
                         cachedGames = [
                             { id: 1, nombre: 'The Legend of Zelda: Tears of the Kingdom', genero: 'Aventura', plataforma: 'Nintendo Switch', fecha: '12/05/2023', estado: 'Activo', descripcion: 'Embárcate en una aventura épica en el reino de Hyrule.', requisitos: 'Nintendo Switch con 7GB de espacio disponible' },
                             { id: 2, nombre: 'Elden Ring', genero: 'RPG', plataforma: 'PC, PS5, Xbox', fecha: '25/02/2022', estado: 'Activo', descripcion: 'Un RPG de acción en un mundo abierto creado por FromSoftware.', requisitos: 'Sistema operativo de 64 bits, 12 GB RAM' },
                             { id: 3, nombre: 'God of War Ragnarök', genero: 'Acción', plataforma: 'PS4, PS5', fecha: '09/11/2022', estado: 'Activo', descripcion: 'Únete a Kratos y Atreus en su viaje final por los Nueve Reinos.', requisitos: 'PS4/PS5 con 100GB de espacio disponible' }
                         ];
                     }
-                } catch (error) {
-                    // Fallback to default games if fetch fails
-                    cachedGames = [
-                        { id: 1, nombre: 'The Legend of Zelda: Tears of the Kingdom', genero: 'Aventura', plataforma: 'Nintendo Switch', fecha: '12/05/2023', estado: 'Activo', descripcion: 'Embárcate en una aventura épica en el reino de Hyrule.', requisitos: 'Nintendo Switch con 7GB de espacio disponible' },
-                        { id: 2, nombre: 'Elden Ring', genero: 'RPG', plataforma: 'PC, PS5, Xbox', fecha: '25/02/2022', estado: 'Activo', descripcion: 'Un RPG de acción en un mundo abierto creado por FromSoftware.', requisitos: 'Sistema operativo de 64 bits, 12 GB RAM' },
-                        { id: 3, nombre: 'God of War Ragnarök', genero: 'Acción', plataforma: 'PS4, PS5', fecha: '09/11/2022', estado: 'Activo', descripcion: 'Únete a Kratos y Atreus en su viaje final por los Nueve Reinos.', requisitos: 'PS4/PS5 con 100GB de espacio disponible' }
-                    ];
                 }
             }
 
@@ -725,6 +735,12 @@
 
 
 
+        // Function to refresh games from admin updates
+        function refreshGames() {
+            cachedGames = []; // Clear cache to force reload
+            loadGames();
+        }
+
         window.addEventListener('load', function() {
             loadGames();
             loadNews();
@@ -732,6 +748,10 @@
             setInterval(function() {
                 loadNews();
             }, 3000);
+            // Check for admin updates every 5 seconds
+            setInterval(function() {
+                refreshGames();
+            }, 5000);
         });
     </script>
 </body>

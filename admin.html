@@ -573,7 +573,6 @@
                                 <th>Plataforma</th>
                                 <th>Fecha Publicación</th>
                                 <th>Estado</th>
-                                <th>Descripción</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -845,15 +844,6 @@
         // Gestión de Juegos
         function loadGames() {
             let games = JSON.parse(localStorage.getItem('games')) || [];
-            if (games.length === 0) {
-                // Inicializar con juegos de ejemplo
-                games = [
-                    { id: 1, nombre: 'The Legend of Zelda: Tears of the Kingdom', genero: 'Aventura', plataforma: 'Nintendo Switch', fecha: '12/05/2023', estado: 'Activo', descripcion: 'Embárcate en una aventura épica en el reino de Hyrule. Explora vastos paisajes, resuelve puzzles desafiantes y enfrenta poderosos enemigos en esta secuela del clásico juego de Nintendo.', imagen: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAyMEgyNEwyOCA0NEgyMFYyMFoiIGZpbGw9IiM5Q0E0QUYiLz4KPHBhdGggZD0iTTQwIDIwSDRMLDQ0IDI4SDRMMjAgNDBIMjBMMjAgMjBaIiBmaWxsPSIjOUNBNEFBIi8+Cjx0ZXh0IHg9IjMyIiB5PSI1NSIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SmV1PC90ZXh0Pgo8L3N2Zz4=', requisitos: 'Nintendo Switch con 7GB de espacio disponible' },
-                    { id: 2, nombre: 'Elden Ring', genero: 'RPG', plataforma: 'PC, PS5, Xbox', fecha: '25/02/2022', estado: 'Activo', descripcion: 'Un RPG de acción en un mundo abierto creado por FromSoftware y George R.R. Martin. Explora las Tierras Intermedias, lucha contra jefes desafiantes y forja tu propio camino hacia el trono de Elden.', imagen: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAyMEgyNEwyOCA0NEgyMFYyMFoiIGZpbGw9IiM5Q0E0QUYiLz4KPHBhdGggZD0iTTQwIDIwSDRMLDQ0IDI4SDRMMjAgNDBIMjBMMjAgMjBaIiBmaWxsPSIjOUNBNEFBIi8+Cjx0ZXh0IHg9IjMyIiB5PSI1NSIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SlBHPjwvdGV4dD4KPC9zdmc+', requisitos: 'PC: i5-8400, 12GB RAM, GTX 1060. PS5/Xbox: Consola de nueva generación' },
-                    { id: 3, nombre: 'God of War Ragnarök', genero: 'Acción', plataforma: 'PS4, PS5', fecha: '09/11/2022', estado: 'Activo', descripcion: 'Únete a Kratos y Atreus en su viaje final por los Nueve Reinos. Enfrenta a dioses nórdicos, resuelve misterios familiares y descubre el destino de Ragnarök en esta épica conclusión.', imagen: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAyMEgyNEwyOCA0NEgyMFYyMFoiIGZpbGw9IiM5Q0E0QUYiLz4KPHBhdGggZD0iTTQwIDIwSDRMLDQ0IDI4SDRMMjAgNDBIMjBMMjAgMjBaIiBmaWxsPSIjOUNBNEFBIi8+Cjx0ZXh0IHg9IjMyIiB5PSI1NSIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QWN0PC90ZXh0Pgo8L3N2Zz4=', requisitos: 'PS4/PS5 con 100GB de espacio disponible' }
-                ];
-                localStorage.setItem('games', JSON.stringify(games));
-            }
 
             const tableBody = document.getElementById('juegos-table');
             // Cargar descripciones y requisitos para mostrar badges si faltan
@@ -884,7 +874,6 @@
                             </div>
                         </div>
                     </td>
-                    <td contenteditable="true" class="editable-cell">${game.descripcion || ''}</td>
                     <td>
                         <button class="btn-action btn-save" onclick="saveGame(${game.id})"><i class="fas fa-save"></i></button>
                         <button class="btn-action btn-edit" onclick="changeImage(${game.id})"><i class="fas fa-image"></i></button>
@@ -916,7 +905,6 @@
                 <td contenteditable="true" class="editable-cell"></td>
                 <td contenteditable="true" class="editable-cell"></td>
                 <td><span class="status-badge status-activo">Activo</span></td>
-                <td contenteditable="true" class="editable-cell"></td>
                 <td>
                     <button class="btn-action btn-save" onclick="saveNewGame(${newId})"><i class="fas fa-save"></i></button>
                     <button class="btn-action btn-edit" onclick="changeImage(${newId})"><i class="fas fa-image"></i></button>
@@ -935,7 +923,6 @@
             const genero = cells[1].textContent.trim();
             const plataforma = cells[2].textContent.trim();
             const fecha = cells[3].textContent.trim();
-            const descripcion = cells[4].textContent.trim();
 
             if (!nombre || !genero || !plataforma || !fecha) {
                 alert('Todos los campos son obligatorios');
@@ -950,7 +937,6 @@
                 plataforma: plataforma,
                 fecha: fecha,
                 estado: 'Activo',
-                descripcion: descripcion,
                 imagen: row.querySelector('img').src
             };
 
@@ -1065,7 +1051,6 @@
             const genero = cells[1].textContent.trim();
             const plataforma = cells[2].textContent.trim();
             const fecha = cells[3].textContent.trim();
-            const descripcion = cells[4].textContent.trim();
 
             if (!nombre || !genero || !plataforma || !fecha) {
                 alert('Todos los campos son obligatorios');
@@ -1082,7 +1067,6 @@
             game.genero = genero;
             game.plataforma = plataforma;
             game.fecha = fecha;
-            game.descripcion = descripcion;
 
             // Si el nombre cambió, actualizar también descripciones y requisitos para mantener consistencia
             if (oldName !== nombre) {
@@ -1366,15 +1350,6 @@
         // Gestión de Requisitos
         function loadRequisitos() {
             let requisitos = JSON.parse(localStorage.getItem('requisitos')) || [];
-            if (requisitos.length === 0) {
-                // Inicializar con requisitos de ejemplo
-                requisitos = [
-                    { id: 1, juego: 'The Legend of Zelda: Tears of the Kingdom', requisitos: 'Nintendo Switch con 7GB de espacio disponible' },
-                    { id: 2, juego: 'Elden Ring', requisitos: 'PC: i5-8400, 12GB RAM, GTX 1060. PS5/Xbox: Consola de nueva generación' },
-                    { id: 3, juego: 'God of War Ragnarök', requisitos: 'PS4/PS5 con 100GB de espacio disponible' }
-                ];
-                localStorage.setItem('requisitos', JSON.stringify(requisitos));
-            }
 
             const tableBody = document.getElementById('requisitos-table');
             tableBody.innerHTML = requisitos.map(req => `
@@ -1506,15 +1481,6 @@
         // Gestión de Descripciones
         function loadDescripciones() {
             let descripciones = JSON.parse(localStorage.getItem('descripciones')) || [];
-            if (descripciones.length === 0) {
-                // Inicializar con descripciones de ejemplo
-                descripciones = [
-                    { id: 1, juego: 'The Legend of Zelda: Tears of the Kingdom', descripcion: 'Embárcate en una aventura épica en el reino de Hyrule. Explora vastos paisajes, resuelve puzzles desafiantes y enfrenta poderosos enemigos en esta secuela del clásico juego de Nintendo.' },
-                    { id: 2, juego: 'Elden Ring', descripcion: 'Un RPG de acción en un mundo abierto creado por FromSoftware y George R.R. Martin. Explora las Tierras Intermedias, lucha contra jefes desafiantes y forja tu propio camino hacia el trono de Elden.' },
-                    { id: 3, juego: 'God of War Ragnarök', descripcion: 'Únete a Kratos y Atreus en su viaje final por los Nueve Reinos. Enfrenta a dioses nórdicos, resuelve misterios familiares y descubre el destino de Ragnarök en esta épica conclusión.' }
-                ];
-                localStorage.setItem('descripciones', JSON.stringify(descripciones));
-            }
 
             const tableBody = document.getElementById('descripciones-table');
             tableBody.innerHTML = descripciones.map(desc => `
